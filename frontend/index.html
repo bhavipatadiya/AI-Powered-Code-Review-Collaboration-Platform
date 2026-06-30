@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — CodeReview</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body class="app-body">
+
+  <header class="navbar">
+    <div class="navbar-left">
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="logo">
+        <span class="logo-icon">&#9670;</span>
+        <span class="logo-text">CodeReview</span>
+      </div>
+    </div>
+    <div class="navbar-right">
+
+      <div class="notif-wrap" id="notif-wrap">
+        <button class="notif-btn" id="notif-bell-btn" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="notif-count" id="notif-badge" style="display:none;">0</span>
+        </button>
+        <div class="notif-panel" id="notif-dropdown" style="display:none;">
+          <div class="notif-panel-head">
+            <span>Notifications</span>
+            <button id="notif-clear-btn">Clear</button>
+          </div>
+          <div class="notif-panel-body" id="notif-list">
+            <p class="notif-empty">No new notifications</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="user-badge" id="user-profile-btn" style="cursor: pointer;" title="View Profile">
+        <div class="user-avatar" id="user-avatar">U</div>
+        <span class="user-name" id="user-name">User</span>
+      </div>
+      <div class="user-badge" id="admin-profile-btn" style="cursor: pointer; display: none;" title="Admin Profile">
+        <div class="user-avatar" style="background: #e53e3e;">A</div>
+        <span class="user-name">Admin</span>
+      </div>
+      <a href="/admin" id="admin-nav-link" class="btn-admin-link" style="display:none;">Admin</a>
+      <button class="btn-logout" id="logout-btn">Logout</button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+
+    <aside class="sidebar" id="sidebar">
+      <nav class="sidebar-nav">
+
+        <a href="#" class="nav-item active" data-section="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </a>
+
+        <a href="#" class="nav-item" data-section="projects" id="nav-projects-root">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+          Projects
+        </a>
+
+        <div id="sidebar-project-links"></div>
+
+        <a href="#" class="nav-item" data-section="reviews">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          Reviews
+        </a>
+
+        <a href="#" class="nav-item" data-section="collaboration">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Collaboration
+        </a>
+
+        <a href="#" class="nav-item" data-section="chats">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          Chats
+        </a>
+
+        <a href="#" class="nav-item" data-section="version">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          Version Control
+        </a>
+
+        <a href="#" class="nav-item" data-section="analytics">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Analytics
+        </a>
+
+      </nav>
+    </aside>
+
+    <main class="main-content">
+
+      <section id="section-dashboard" class="section active">
+        <div class="section-header">
+          <h2>Dashboard</h2>
+          <p>Overview of your workspace</p>
+        </div>
+        <div class="welcome-card">
+          <div>
+            <h3 id="welcome-title">Good to see you!</h3>
+            <p id="welcome-sub">Your workspace is ready.</p>
+          </div>
+          <div class="welcome-icon">&#128187;</div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon stat-blue">&#128101;</div><div class="stat-info"><span class="stat-label">Users</span><span class="stat-value" id="stat-users">—</span></div></div>
+          <div class="stat-card"><div class="stat-icon stat-blue">&#128193;</div><div class="stat-info"><span class="stat-label">Projects</span><span class="stat-value" id="stat-projects">—</span></div></div>
+          <div class="stat-card"><div class="stat-icon stat-green">&#128196;</div><div class="stat-info"><span class="stat-label">Files</span><span class="stat-value" id="stat-files">—</span></div></div>
+          <div class="stat-card"><div class="stat-icon stat-orange">&#128270;</div><div class="stat-info"><span class="stat-label">Reviews</span><span class="stat-value" id="stat-reviews">—</span></div></div>
+          <div class="stat-card"><div class="stat-icon stat-purple">&#128190;</div><div class="stat-info"><span class="stat-label">Commits</span><span class="stat-value" id="stat-commits">—</span></div></div>
+          <div class="stat-card"><div class="stat-icon stat-teal">&#128172;</div><div class="stat-info"><span class="stat-label">Chats</span><span class="stat-value" id="stat-chats">—</span></div></div>
+          <div class="stat-card"><div class="stat-icon stat-red">&#128221;</div><div class="stat-info"><span class="stat-label">Lines of Code</span><span class="stat-value" id="stat-loc">—</span></div></div>
+        </div>
+
+        <div class="card" id="invitations-container" style="display:none; margin-top:20px;">
+          <h3>Pending Invitations</h3>
+          <div id="invitations-list" style="display:flex; flex-direction:column; gap:10px;"></div>
+        </div>
+
+        <div id="owner-dashboard-projects" style="margin-top: 30px; display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 style="font-size: 1.1rem; margin: 0;">My Projects</h3>
+            <button class="btn-primary" id="open-chatbot-btn" style="width:auto; display:flex; gap:6px; align-items:center;">
+              <span>&#129302;</span> Ask Chatbot
+            </button>
+          </div>
+          <div class="card" style="padding:0; overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:0.9rem; text-align:left;">
+              <thead>
+                <tr style="border-bottom:1px solid var(--color-border); background:var(--color-bg);">
+                  <th style="padding:12px 16px; font-weight:600;">Name</th>
+                  <th style="padding:12px 16px; font-weight:600;">Created</th>
+                  <th style="padding:12px 16px; font-weight:600;">Files</th>
+                  <th style="padding:12px 16px; font-weight:600;">Reviews</th>
+                  <th style="padding:12px 16px; font-weight:600;">Collaborators</th>
+                  <th style="padding:12px 16px; font-weight:600;">Latest Activity</th>
+                </tr>
+              </thead>
+              <tbody id="owner-projects-tbody">
+                <tr><td colspan="6" style="padding:20px; text-align:center; color:var(--color-muted);">Loading projects...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="section-projects" class="section">
+        <div class="section-header">
+          <h2>Projects</h2>
+          <button class="btn-primary btn-sm" id="open-create-modal-btn">+ Create Project</button>
+        </div>
+        
+        <div class="ws-tab-bar" style="margin-bottom: 20px;">
+          <button class="ws-tab-btn active" data-projtab="owned">Owned Projects</button>
+          <button class="ws-tab-btn" data-projtab="invited">Invited Projects</button>
+        </div>
+        
+        <div id="projects-owned-panel" class="proj-panel active">
+          <div id="project-list-owned" class="project-grid" style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="empty-state">Loading owned projects…</div>
+          </div>
+        </div>
+        
+        <div id="projects-invited-panel" class="proj-panel" style="display:none;">
+          <div id="project-list-invited" class="project-grid" style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="empty-state">Loading invited projects…</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="section-workspace" class="section">
+
+        <div class="ws-header">
+          <button class="btn-back" id="back-to-projects-btn">&#8592; All Projects</button>
+          <div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <h2 id="workspace-project-name" style="margin:0;">Project</h2>
+              <button id="workspace-github-btn" class="btn-ghost btn-sm" style="display:none; font-size:0.85rem; padding:4px 8px;">View in GitHub</button>
+            </div>
+            <p id="workspace-project-desc" class="workspace-desc"></p>
+          </div>
+        </div>
+
+        <div class="ws-tab-bar">
+          <button class="ws-tab-btn active" data-wstab="files">
+            &#128196; Files
+          </button>
+          <button class="ws-tab-btn" data-wstab="repository">
+            &#128193; Repository
+          </button>
+          <button class="ws-tab-btn" data-wstab="updates">
+            &#128336; Project Updates
+          </button>
+        </div>
+
+        <div class="ws-panel active" id="wsp-files">
+          <div class="card">
+            <h3>&#128229; Upload a File</h3>
+            <form id="upload-form" class="upload-form-row">
+              <input type="file" id="code-file" accept=".py,.js,.java,.cpp,.c,.cs,.ts,.html,.css,.json,.txt" />
+              <button type="submit" class="btn-primary btn-sm">Upload</button>
+            </form>
+            <div class="form-alert" id="upload-alert" style="display:none;"></div>
+          </div>
+          <div class="card">
+            <h3>&#128196; Uploaded Files</h3>
+            <div id="workspace-files-list"><div class="empty-state">No files yet.</div></div>
+          </div>
+        </div>
+
+        <div class="ws-panel" id="wsp-repository">
+          <div class="card">
+            <div class="ws-repo-toolbar">
+              <h3 style="margin:0;">&#128193; Repository Files</h3>
+              <div style="display:flex;gap:8px;">
+                <button class="btn-primary btn-sm" id="repo-new-folder-btn">+ Folder</button>
+                <button class="btn-primary btn-sm" id="repo-upload-btn">&#8679; Upload</button>
+              </div>
+            </div>
+
+            <div id="repo-upload-form-wrap" style="display:none;margin-bottom:14px;">
+              <form id="repo-upload-form" class="upload-form-row">
+                <label style="font-size:.82rem;color:var(--color-muted);">Folder:</label>
+                <select id="repo-upload-folder" style="padding:7px 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);font-size:.85rem;">
+                  <option value="/">/ root</option>
+                </select>
+                <input type="file" id="repo-file-input" accept=".py,.js,.java,.cpp,.c,.ts,.html,.css,.json,.txt,.cs" />
+                <button type="submit" class="btn-primary btn-sm">Upload</button>
+                <button type="button" class="btn-ghost btn-sm" id="repo-upload-cancel">Cancel</button>
+              </form>
+              <div class="form-alert" id="repo-upload-alert" style="display:none;"></div>
+            </div>
+
+            <div id="repo-folder-form-wrap" style="display:none;margin-bottom:14px;">
+              <form id="repo-folder-form" class="upload-form-row">
+                <input type="text" id="repo-folder-name" placeholder="e.g. src"
+                  style="padding:7px 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);font-size:.85rem;flex:1;" />
+                <label style="font-size:.82rem;color:var(--color-muted);">Under:</label>
+                <select id="repo-folder-parent" style="padding:7px 10px;border:1px solid var(--color-border);border-radius:var(--radius-sm);font-size:.85rem;">
+                  <option value="/">/ root</option>
+                </select>
+                <button type="submit" class="btn-primary btn-sm">Create</button>
+                <button type="button" class="btn-ghost btn-sm" id="repo-folder-cancel">Cancel</button>
+              </form>
+              <div class="form-alert" id="repo-folder-alert" style="display:none;"></div>
+            </div>
+
+            <div id="repo-browser-wrap">
+              <div class="repo-path-bar">
+                <span>&#128193; <strong id="repo-current-path">/</strong></span>
+                <button class="btn-ghost btn-sm" id="repo-root-btn">&#8593; Root</button>
+              </div>
+              <div id="repo-folder-list"></div>
+              <div id="repo-file-list"></div>
+              <div class="empty-state" id="repo-empty" style="display:none;">This folder is empty.</div>
+            </div>
+
+            <div id="repo-file-viewer" style="display:none;"></div>
+          </div>
+        </div>
+
+        <div class="ws-panel" id="wsp-updates">
+          <div class="card">
+            <h3>&#128336; Project Activity</h3>
+            <p style="font-size:.85rem;color:var(--color-muted);margin-top:-4px;margin-bottom:14px;">
+              All actions performed in this project.
+            </p>
+            <div id="project-updates-list">
+              <div class="empty-state">No updates found.</div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <section id="section-collaboration" class="section">
+        <div class="section-header">
+          <h2>Collaboration</h2>
+          <p>Manage team members and view project activity</p>
+        </div>
+
+        <div class="card" style="margin-bottom:16px;">
+          <div class="form-row" style="align-items:flex-end; gap:12px;">
+            <div class="form-group" style="flex:1; margin:0;">
+              <label for="collab-page-project-select">Select project</label>
+              <select id="collab-page-project-select"><option value="">— choose a project —</option></select>
+            </div>
+          </div>
+        </div>
+
+        <div id="collab-page-content" style="display:none;">
+          <div class="card" style="margin-bottom:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+              <h3 style="margin:0;">Collaborators</h3>
+              <button class="btn-primary btn-sm" id="btn-add-collaborator">+ Add Collaborator</button>
+            </div>
+            <div style="overflow-x:auto;">
+              <table style="width:100%; border-collapse:collapse; font-size:.9rem; text-align:left;">
+                <thead>
+                  <tr style="border-bottom:1px solid var(--color-border);">
+                    <th style="padding:10px;">Name</th>
+                    <th style="padding:10px;">Role</th>
+                    <th style="padding:10px;">Joined Date</th>
+                    <th style="padding:10px;">Status</th>
+                    <th style="padding:10px;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="collaborators-tbody">
+                  <tr><td colspan="5" style="padding:20px; text-align:center; color:var(--color-muted);">Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom:16px;">
+            <h3>Collaborative Comments</h3>
+            <div id="global-comments-list" class="fv-comments-list" style="max-height:300px; overflow-y:auto; border:1px solid var(--color-border); border-radius:var(--radius-sm); padding:10px;">
+              <div class="empty-state">No comments yet.</div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom:16px;">
+            <h3>Collaboration Activity Feed</h3>
+            <div id="workspace-activity-list" class="timeline-list">
+              <div class="empty-state">No activity yet.</div>
+            </div>
+          </div>
+          
+
+        </div>
+
+
+      </section>
+
+      <section id="section-chats" class="section">
+        <div class="section-header">
+          <h2>Chats</h2>
+          <p>Real-time collaboration and discussions</p>
+        </div>
+        <div class="card">
+          <h3>Open Project Chat</h3>
+          <p style="font-size: 0.85rem; color: var(--color-muted); margin-top: -5px; margin-bottom: 15px;">
+            Select a project to join its real-time chat room.
+          </p>
+          <div class="form-row" style="align-items:flex-end; gap:12px;">
+            <div class="form-group" style="flex:1; margin:0;">
+              <label for="chat-project-select">Select project</label>
+              <select id="chat-project-select"><option value="">— choose a project —</option></select>
+            </div>
+            <button class="btn-primary btn-sm" id="btn-open-chat-room">Join Chat Room</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="section-reviews" class="section">
+        <div class="section-header">
+          <h2>Code Reviews</h2>
+          <p>AI-powered code analysis</p>
+        </div>
+        <div class="card">
+          <h3>Run a Review</h3>
+          <div class="form-row" style="align-items:flex-end; gap:12px;">
+            <div class="form-group" style="flex:1; margin:0;">
+              <label for="review-project-select">Select project</label>
+              <select id="review-project-select"><option value="">— choose a project —</option></select>
+            </div>
+            <button class="btn-primary btn-sm" id="load-files-btn">Load Files</button>
+          </div>
+        </div>
+
+        <div id="review-files-list" class="file-list" style="display:none;">
+          <h3 class="list-title">Files</h3>
+          <div id="review-files-items"></div>
+        </div>
+
+        <div id="review-result" class="card" style="display:none;">
+          <div class="rv-header">
+            <h3>Review Result</h3>
+            <div class="rv-badges">
+              <span id="review-complexity-badge" class="complexity-badge"></span>
+              <span id="review-score-badge" class="review-score-badge"></span>
+            </div>
+          </div>
+
+          <p id="review-summary-text" class="review-summary-text"></p>
+
+          <div id="review-cards-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px;">
+              <div class="card" style="grid-column: span 2;"><h4 style="margin-top:0; margin-bottom:8px;">Changed File Name</h4><p id="rc-filename" style="margin:0; font-size:1.1rem; font-weight:bold;"></p></div>
+              <div class="card" style="grid-column: span 2;"><h4 style="margin-top:0; margin-bottom:8px; color:#d97706;">Code Issue</h4><p id="rc-issue" style="margin:0; font-size:0.9rem; line-height:1.5; color:var(--color-muted);"></p></div>
+              <div class="card" style="grid-column: span 2;"><h4 style="margin-top:0; margin-bottom:8px; color:#e53e3e;">Explanation</h4><p id="rc-explanation" style="margin:0; font-size:0.9rem; line-height:1.5; color:var(--color-muted);"></p></div>
+              <div class="card" style="grid-column: span 2;"><h4 style="margin-top:0; margin-bottom:8px; color:#3182ce;">Suggested Fix</h4><p id="rc-fix" style="margin:0; font-size:0.9rem; line-height:1.5; color:var(--color-muted);"></p></div>
+              <div class="card" style="grid-column: span 2;"><h4 style="margin-top:0; margin-bottom:8px; color:#805ad5;">Optimization</h4><p id="rc-opt" style="margin:0; font-size:0.9rem; line-height:1.5; color:var(--color-muted);"></p></div>
+              <div class="card" style="grid-column: span 2;"><h4 style="margin-top:0; margin-bottom:8px;">Generated Documentation / Comments</h4><pre id="rc-doc" class="language-none" style="margin:0; font-size:0.85rem; color:var(--color-muted); white-space:pre-wrap; background:var(--color-border); padding:10px; border-radius:4px;"></pre></div>
+            </div>
+        </div>
+
+        <div id="review-history-card" class="card" style="display:none;">
+          <h3>Review History</h3>
+          <div id="review-history-list"></div>
+        </div>
+      </section>
+
+      <section id="section-version" class="section">
+        <div class="section-header"><h2>Version Control</h2></div>
+
+        <div class="card">
+          <h3>&#128190; Create Commit</h3>
+          <form id="commit-form">
+            <div class="form-row" style="gap:12px; flex-wrap:wrap;">
+              <div class="form-group" style="flex:1; margin:0; min-width:140px;">
+                <label for="commit-file-id">File ID</label>
+                <input type="number" id="commit-file-id" placeholder="Enter file ID" required />
+              </div>
+              <div class="form-group" style="flex:2; margin:0; min-width:200px;">
+                <label for="commit-message">Commit message</label>
+                <input type="text" id="commit-message" placeholder="e.g. Fix null pointer bug" required />
+              </div>
+            </div>
+            <div class="form-alert" id="commit-alert" style="display:none; margin-top:10px;"></div>
+            <button type="submit" class="btn-primary btn-sm" style="margin-top:12px;">Create Commit</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3>&#128200; Commit History</h3>
+          <div class="form-row" style="align-items:flex-end; gap:12px;">
+            <div class="form-group" style="flex:1; margin:0;">
+              <label for="version-project-select">Select project</label>
+              <select id="version-project-select"><option value="">— choose a project —</option></select>
+            </div>
+            <button class="btn-primary btn-sm" id="load-commits-btn">Load History</button>
+          </div>
+          <div id="commit-history-list" style="display:none; margin-top:14px;">
+            <div id="commit-items"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>&#128196; File Versions &amp; Diff</h3>
+          <div class="form-row" style="align-items:flex-end; gap:12px; flex-wrap:wrap;">
+            <div class="form-group" style="flex:1; margin:0; min-width:140px;">
+              <label for="versions-file-id">File ID</label>
+              <input type="number" id="versions-file-id" placeholder="Enter file ID" />
+            </div>
+            <button class="btn-primary btn-sm" id="load-versions-btn">Load Versions</button>
+          </div>
+          <div id="file-versions-card" style="display:none; margin-top:14px;">
+            <div id="file-versions-list"></div>
+          </div>
+        </div>
+
+        <div class="card" id="version-timeline-card" style="display:none;">
+          <h3>&#128336; Version History</h3>
+          <div id="version-timeline-list" class="version-timeline"></div>
+        </div>
+
+        <div class="card" id="diff-viewer-card" style="display:none;">
+          <h3>&#128269; Diff View <span id="diff-stats" class="diff-stats"></span></h3>
+          <div class="form-row" style="gap:10px; align-items:flex-end; flex-wrap:wrap; margin-bottom:14px;">
+            <div class="form-group" style="flex:1; margin:0; min-width:120px;">
+              <label for="diff-v1">Version ID (from)</label>
+              <input type="number" id="diff-v1" placeholder="e.g. 1" />
+            </div>
+            <div class="form-group" style="flex:1; margin:0; min-width:120px;">
+              <label for="diff-v2">Version ID (to)</label>
+              <input type="number" id="diff-v2" placeholder="e.g. 2" />
+            </div>
+            <button class="btn-primary btn-sm" id="compare-btn">Compare</button>
+          </div>
+          <div id="diff-output" class="diff-output"></div>
+        </div>
+
+      </section>
+
+      <section id="section-analytics" class="section">
+        <div class="section-header" style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <h2>Analytics</h2>
+            <p>Review history insights</p>
+          </div>
+          <div>
+            <select class="form-input" id="analytics-project-select" style="min-width:200px;">
+              <option value="">All Projects</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="stats-grid" style="margin-bottom:24px;">
+          <div class="stat-card">
+            <div class="stat-icon stat-blue">&#128270;</div>
+            <div class="stat-info">
+              <span class="stat-label">Total Reviews</span>
+              <span class="stat-value" id="a-total-reviews">—</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon stat-green">&#11088;</div>
+            <div class="stat-info">
+              <span class="stat-label">Average Score</span>
+              <span class="stat-value" id="a-avg-score">—</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon stat-orange">&#128196;</div>
+            <div class="stat-info">
+              <span class="stat-label">Files Reviewed</span>
+              <span class="stat-value" id="a-files-reviewed">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:24px;">
+          <div class="card chart-card">
+            <h3>Average Review Score Trend</h3>
+            <canvas id="score-trend-chart"></canvas>
+            <div class="empty-state" id="score-trend-empty" style="display:none;">No score data yet.</div>
+          </div>
+          <div class="card chart-card">
+            <h3>Reviews Per Day Trend</h3>
+            <canvas id="review-trend-chart"></canvas>
+            <div class="empty-state" id="review-trend-empty" style="display:none;">No review data yet.</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="section-profile" class="section">
+        <div class="section-header">
+          <h2>User Profile</h2>
+          <p>Manage your account settings</p>
+        </div>
+        <div class="card" style="max-width: 1000px;">
+          <h3>Profile Details</h3>
+          <form id="profile-form">
+            <div class="form-group">
+              <label for="prof-username">Username</label>
+              <input type="text" id="prof-username" required />
+            </div>
+            <div class="form-group">
+              <label for="prof-email">Email</label>
+              <input type="email" id="prof-email" required />
+            </div>
+            <div class="form-alert" id="prof-alert" style="display:none; margin-bottom: 10px;"></div>
+            <button type="submit" class="btn-primary btn-sm">Update Profile</button>
+          </form>
+        </div>
+        <div class="card" style="max-width: 1000px; margin-top: 20px;">
+          <h3>Change Password</h3>
+          <form id="password-form">
+            <div class="form-group">
+              <label for="prof-old-pwd">Current Password</label>
+              <input type="password" id="prof-old-pwd" required />
+            </div>
+            <div class="form-group">
+              <label for="prof-new-pwd">New Password</label>
+              <input type="password" id="prof-new-pwd" required />
+            </div>
+            <div class="form-alert" id="pwd-alert" style="display:none; margin-bottom: 10px;"></div>
+            <button type="submit" class="btn-primary btn-sm">Change Password</button>
+          </form>
+        </div>
+        <div class="card" style="max-width: 1000px; margin-top: 20px; border: 1px solid var(--color-danger);">
+          <h3 style="color: var(--color-danger);">Delete Account</h3>
+          <p style="font-size: 0.85rem; color: var(--color-muted);">Once you delete your account, there is no going back. Please be certain.</p>
+          <button id="prof-delete-btn" class="btn-danger btn-sm">Delete Account</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="create-project-modal" style="display:none;">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>New Project</h3>
+        <button class="modal-close" id="modal-close-btn">&times;</button>
+      </div>
+      <form id="project-form">
+        <div class="form-group">
+          <label for="proj-name">Project name</label>
+          <input type="text" id="proj-name" placeholder="e.g. Auth Service" required />
+        </div>
+        <div class="form-group">
+          <label for="proj-desc">Description</label>
+          <textarea id="proj-desc" rows="3" placeholder="What is this project about?"></textarea>
+        </div>
+
+        <div class="form-alert" id="proj-alert" style="display:none;"></div>
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary btn-sm">Create</button>
+          <button type="button" class="btn-ghost btn-sm" id="modal-cancel-btn">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="delete-confirm-modal" style="display:none;">
+    <div class="modal-box modal-box-sm">
+      <div class="modal-header">
+        <h3>Delete Project</h3>
+        <button class="modal-close" id="delete-modal-close-btn">&times;</button>
+      </div>
+      <p class="modal-body-text">Are you sure you want to delete <strong id="delete-project-name"></strong>? This cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="btn-danger btn-sm" id="confirm-delete-btn">Yes, Delete</button>
+        <button class="btn-ghost btn-sm" id="cancel-delete-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="add-collaborator-modal" style="display:none;">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Add Collaborator</h3>
+        <button class="modal-close" id="collab-modal-close-btn">&times;</button>
+      </div>
+      <div class="form-group">
+        <input type="text" id="collab-search-input" placeholder="Search by username or email..." style="width:100%; padding:8px; border:1px solid var(--color-border); border-radius:var(--radius-sm);" />
+      </div>
+      <div id="collab-search-results" style="max-height:200px; overflow-y:auto; margin-bottom:14px; border:1px solid var(--color-border); border-radius:var(--radius-sm); padding:5px;">
+        <div class="empty-state" style="padding:10px;">Type to search users...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="chatbot-select-modal" style="display:none;">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Select Files for Chatbot</h3>
+        <button class="modal-close" id="chatbot-modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Select Project</label>
+          <select id="chatbot-project-select" class="form-input">
+            <option value="">-- Choose Project --</option>
+          </select>
+        </div>
+        <div class="form-group" id="chatbot-files-group" style="display:none;">
+          <label class="form-label">Select Files to Include</label>
+          <div id="chatbot-files-list" style="max-height:150px; overflow-y:auto; border:1px solid var(--color-border); padding:8px; border-radius:6px; margin-bottom:10px;">
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost btn-sm" id="chatbot-modal-cancel-btn">Cancel</button>
+        <button type="button" class="btn-primary btn-sm" id="chatbot-modal-open-btn" disabled>Open Chatbot</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-cpp.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-typescript.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

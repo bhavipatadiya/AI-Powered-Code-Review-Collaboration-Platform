@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Chat — CodeReview</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+
+    body { background: var(--color-bg); }
+
+    .chat-page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .chat-page-navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 12px 20px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .chat-page-title {
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chat-page-user {
+      font-size: .82rem;
+      color: var(--color-muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chat-page-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .chat-page-heading {
+      font-size: .88rem;
+      font-weight: 600;
+      color: var(--color-muted);
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .chat-page-messages {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 10px;
+      padding-right: 4px;
+    }
+
+    .cp-bubble {
+      max-width: 75%;
+      padding: 9px 13px;
+      border-radius: 12px;
+      font-size: .87rem;
+      line-height: 1.5;
+      word-break: break-word;
+      position: relative;
+      overflow: visible;
+    }
+    .cp-bubble.mine {
+      align-self: flex-end;
+      background: var(--color-primary);
+      color: #fff;
+      border-bottom-right-radius: 3px;
+    }
+    .cp-bubble.other {
+      align-self: flex-start;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      color: var(--color-text);
+      border-bottom-left-radius: 3px;
+    }
+    .cp-sender {
+      font-size: .70rem;
+      font-weight: 700;
+      margin-bottom: 3px;
+      opacity: .75;
+    }
+    .cp-time {
+      font-size: .68rem;
+      opacity: .6;
+      margin-top: 3px;
+      text-align: right;
+    }
+    .cp-system {
+      align-self: center;
+      font-size: .72rem;
+      color: var(--color-muted);
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 20px;
+      padding: 3px 12px;
+    }
+    .cp-bubble.pinned {
+      border: 2px solid #faad14;
+    }
+    .cp-menu-wrap {
+      position: relative;
+      float: right;
+    }
+    .cp-menu-btn {
+      cursor: pointer;
+      font-size: 1.2rem;
+      background: none;
+      border: none;
+      padding: 0 5px;
+      opacity: 0.5;
+      color: var(--color-text);
+      line-height: 1;
+    }
+    .cp-menu-btn:hover {
+      opacity: 1;
+    }
+    .cp-dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      z-index: 9999;
+      white-space: nowrap;
+      min-width: 150px;
+    }
+    .cp-bubble.mine .cp-dropdown {
+      right: 0;
+      left: auto;
+    }
+    .cp-bubble.other .cp-dropdown {
+      left: 0;
+      right: auto;
+    }
+    .cp-dropdown.show {
+      display: block;
+    }
+    .cp-dropdown-item {
+      display: block;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      color: var(--color-text);
+      cursor: pointer;
+    }
+    .cp-dropdown-item:hover {
+      background: var(--color-bg);
+    }
+
+    .cp-typing {
+      font-size: .73rem;
+      color: var(--color-muted);
+      font-style: italic;
+      min-height: 18px;
+      padding: 2px 4px;
+    }
+
+    .cp-input-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .cp-input-row input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-size: .88rem;
+      font-family: var(--font);
+      outline: none;
+      background: var(--color-surface);
+    }
+    .cp-input-row input:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(19,194,194,.12);
+    }
+
+    .cp-empty {
+      text-align: center;
+      color: var(--color-muted);
+      font-size: .85rem;
+      padding: 40px 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="chat-page">
+
+  <div class="chat-page-navbar">
+    <div class="chat-page-title">
+      <span>&#128172;</span>
+      <span id="cp-project-label">Project Chat</span>
+    </div>
+    <div class="chat-page-user">
+      <span id="cp-username-label">Loading…</span>
+      <button class="btn-primary btn-sm" id="cp-share-btn" style="padding:4px 12px; font-size:.78rem;">&#128279; Share Chat Link</button>
+      <a href="/dashboard" class="btn-ghost btn-sm" style="padding:4px 12px; font-size:.78rem;">Dashboard</a>
+      <button class="btn-logout" id="cp-logout-btn">Logout</button>
+    </div>
+  </div>
+
+  <div class="chat-page-card" style="display:flex; height: 600px; gap: 20px;">
+    
+    <div style="flex: 1; display: flex; flex-direction: column;">
+      <div class="chat-page-heading">
+        <span id="cp-room-label">&#128100; Loading room…</span>
+      </div>
+
+      <div class="chat-page-messages" id="cp-messages">
+        <div class="cp-empty">Loading messages…</div>
+      </div>
+
+      <div class="cp-typing" id="cp-typing"></div>
+
+      <form class="cp-input-row" id="cp-form">
+        <input type="text" id="cp-input" placeholder="Type a message and press Enter…" autocomplete="off" />
+        <button type="submit" id="cp-send-btn" class="btn-primary btn-sm" style="width:auto; padding:10px 20px;">Send</button>
+      </form>
+    </div>
+
+    <div style="width: 250px; border-left: 1px solid var(--color-border); padding-left: 20px; display: flex; flex-direction: column;">
+      <h3 style="margin-top: 0; font-size: 1rem; border-bottom: 1px solid var(--color-border); padding-bottom: 10px; color: var(--color-text);">
+        Online Users (<span id="online-users-count">0</span>)
+      </h3>
+      <ul id="online-users-list" style="list-style: none; padding: 0; margin: 0; overflow-y: auto; flex: 1; max-height: 200px;">
+        <li style="color: var(--color-muted); font-size: 0.85rem;">Loading...</li>
+      </ul>
+      <h3 style="margin-top: 20px; font-size: 1rem; border-bottom: 1px solid var(--color-border); padding-bottom: 10px; color: var(--color-text);">
+        Pinned Chats
+      </h3>
+      <ul id="pinned-chats-list" style="list-style: none; padding: 0; margin: 0; overflow-y: auto; flex: 1;">
+        <li style="color: var(--color-muted); font-size: 0.85rem;">No pinned chats</li>
+      </ul>
+    </div>
+
+  </div>
+
+</div>
+
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+const API = "http://127.0.0.1:8000";
+
+if (!document.getElementById("custom-modal-styles")) {
+  const style = document.createElement("style");
+  style.id = "custom-modal-styles";
+  style.textContent = `
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  `;
+  document.head.appendChild(style);
+}
+
+function showCustomModal({ title, message, buttons = [], onClose }) {
+  const backdrop = document.createElement("div");
+  backdrop.style.cssText = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 100000; animation: fadeIn 0.2s ease-out;";
+  const container = document.createElement("div");
+  container.style.cssText = "background: var(--color-surface, #fff); border: 1px solid var(--color-border, #e2e8f0); border-radius: var(--radius-md, 8px); padding: 24px; max-width: 400px; width: 90%; box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0,0,0,0.1)); animation: scaleUp 0.2s ease-out;";
+  const titleEl = document.createElement("h3");
+  titleEl.style.cssText = "margin-top: 0; margin-bottom: 12px; font-size: 1.2rem; color: var(--color-text, #1e293b);";
+  titleEl.textContent = title;
+  container.appendChild(titleEl);
+  const msgEl = document.createElement("p");
+  msgEl.style.cssText = "font-size: 0.9rem; color: var(--color-muted, #64748b); line-height: 1.5; margin-bottom: 24px;";
+  msgEl.textContent = message;
+  container.appendChild(msgEl);
+  const btnContainer = document.createElement("div");
+  btnContainer.style.cssText = "display: flex; justify-content: flex-end; gap: 12px;";
+  buttons.forEach(btnSpec => {
+    const btn = document.createElement("button");
+    btn.textContent = btnSpec.text;
+    if (btnSpec.type === "danger") {
+      btn.style.cssText = "padding: 8px 16px; font-size: 0.85rem; border-radius: 4px; background: #e53e3e; color: white; border: none; cursor: pointer; font-weight: 500;";
+    } else if (btnSpec.type === "primary") {
+      btn.style.cssText = "padding: 8px 16px; font-size: 0.85rem; border-radius: 4px; background: var(--color-primary, #13c2c2); color: white; border: none; cursor: pointer; font-weight: 500;";
+    } else {
+      btn.style.cssText = "padding: 8px 16px; font-size: 0.85rem; border-radius: 4px; background: transparent; color: var(--color-text, #1e293b); border: 1px solid var(--color-border, #e2e8f0); cursor: pointer; font-weight: 500;";
+    }
+    btn.addEventListener("click", () => {
+      document.body.removeChild(backdrop);
+      if (btnSpec.onClick) btnSpec.onClick();
+      if (onClose) onClose();
+    });
+    btnContainer.appendChild(btn);
+  });
+  container.appendChild(btnContainer);
+  backdrop.appendChild(container);
+  document.body.appendChild(backdrop);
+}
+
+function showCustomAlert(title, message, onOk) {
+  showCustomModal({
+    title,
+    message,
+    buttons: [
+      { text: "OK", type: "primary", onClick: onOk }
+    ]
+  });
+}
+
+function showCustomConfirm(title, message, onConfirm, onCancel) {
+  showCustomModal({
+    title,
+    message,
+    buttons: [
+      { text: "Cancel", type: "ghost", onClick: onCancel },
+      { text: "Continue", type: "danger", onClick: onConfirm }
+    ]
+  });
+}
+
+const token = localStorage.getItem("token");
+if (!token) {
+  window.location.href = "/login?next=" + encodeURIComponent(window.location.pathname + window.location.search);
+}
+
+let currentUser = null;
+try { currentUser = JSON.parse(localStorage.getItem("user")); } catch (_) {}
+if (!currentUser) { window.location.href = "/login?next=" + encodeURIComponent(window.location.pathname + window.location.search); }
+
+const pathMatch = window.location.pathname.match(/\/project\/(\d+)\/chat/);
+const projectId = pathMatch ? parseInt(pathMatch[1]) : null;
+if (!projectId) {
+  document.body.innerHTML = "<p style='padding:40px; text-align:center; color:#e53e3e;'>Invalid chat link. No project ID found.</p>";
+  throw new Error("No project ID");
+}
+
+const messagesEl = document.getElementById("cp-messages");
+const typingEl   = document.getElementById("cp-typing");
+const form       = document.getElementById("cp-form");
+const input      = document.getElementById("cp-input");
+
+document.getElementById("cp-project-label").textContent = `Project #${projectId} — Chat`;
+document.getElementById("cp-username-label").textContent = currentUser.username;
+document.getElementById("cp-room-label").textContent = `&#128100; Room: project_${projectId}`;
+document.getElementById("cp-logout-btn").addEventListener("click", () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  window.location.href = "/login";
+});
+
+document.getElementById("cp-share-btn").addEventListener("click", () => {
+  const url = window.location.href;
+  navigator.clipboard.writeText(url).then(() => {
+    showCustomAlert("Link Copied", "Chat link copied to clipboard: " + url);
+  });
+});
+
+function esc(s) {
+  if (!s) return "";
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function formatTime(isoStr) {
+  if (!isoStr) return "";
+  try {
+    const d = new Date(isoStr);
+    return d.toLocaleString(undefined, {
+      day: "2-digit", month: "short", year: "numeric",
+      hour: "2-digit", minute: "2-digit", hour12: true
+    });
+  } catch (_) { return isoStr; }
+}
+
+function scrollBottom() {
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function addSystemMsg(text) {
+  const div = document.createElement("div");
+  div.className = "cp-system";
+  div.textContent = text;
+  messagesEl.appendChild(div);
+  scrollBottom();
+}
+
+function addBubble(m) {
+  const old = messagesEl.querySelector(".cp-empty");
+  if (old) old.remove();
+
+  if (m.sender_id === 0 || m.username === "System") {
+    addSystemMsg(m.message);
+    return;
+  }
+
+  const isMe = currentUser && m.sender_id === currentUser.user_id;
+  const isPinned = m.is_pinned || false;
+  const div  = document.createElement("div");
+  div.className = "cp-bubble " + (isMe ? "mine" : "other") + (isPinned ? " pinned" : "");
+  div.id = "chat-msg-" + m.id;
+  div.dataset.message = m.message;
+  
+  const pinText = isPinned ? "Unpin this conversation" : "Pin this conversation";
+  
+  let dropdownHtml = `<div class="cp-dropdown-item" onclick="togglePin(${m.id})">${pinText}</div>`;
+  dropdownHtml += `<div class="cp-dropdown-item" style="color: #e53e3e;" onclick="deleteChat(${m.id})">Delete message</div>`;
+  
+  div.innerHTML = `
+    <div class="cp-menu-wrap">
+      <button class="cp-menu-btn" onclick="toggleMenu(this)">&#8942;</button>
+      <div class="cp-dropdown">
+        ${dropdownHtml}
+      </div>
+    </div>
+    <div class="cp-sender">${esc(m.username || (isMe ? currentUser.username : "User"))}</div>
+    ${esc(m.message)}
+    <div class="cp-time">${formatTime(m.timestamp)}</div>`;
+  messagesEl.appendChild(div);
+  scrollBottom();
+  updatePinnedChatsList();
+}
+
+function toggleMenu(btn) {
+  const dropdown = btn.nextElementSibling;
+  const isShowing = dropdown.classList.contains("show");
+  document.querySelectorAll(".cp-dropdown.show").forEach(el => el.classList.remove("show"));
+  document.querySelectorAll(".cp-menu-wrap").forEach(w => w.style.zIndex = "");
+  document.querySelectorAll(".cp-bubble").forEach(b => b.style.zIndex = "");
+  if (!isShowing) {
+    dropdown.classList.add("show");
+    btn.parentElement.style.zIndex = "10000";
+    const bubble = btn.closest(".cp-bubble");
+    if (bubble) bubble.style.zIndex = "10001";
+  }
+}
+
+document.addEventListener("click", e => {
+  if (!e.target.matches('.cp-menu-btn')) {
+    document.querySelectorAll(".cp-dropdown.show").forEach(el => el.classList.remove("show"));
+    document.querySelectorAll(".cp-menu-wrap").forEach(w => w.style.zIndex = "");
+    document.querySelectorAll(".cp-bubble").forEach(b => b.style.zIndex = "");
+  }
+});
+
+function updatePinnedChatsList() {
+  const pinnedList = document.getElementById("pinned-chats-list");
+  if (!pinnedList) return;
+  const pinnedBubbles = document.querySelectorAll(".cp-bubble.pinned");
+  pinnedList.innerHTML = "";
+  if (pinnedBubbles.length === 0) {
+    pinnedList.innerHTML = '<li style="color: var(--color-muted); font-size: 0.85rem;">No pinned chats</li>';
+    return;
+  }
+  pinnedBubbles.forEach(b => {
+    const sender = b.querySelector(".cp-sender").textContent;
+    const msg = b.dataset.message;
+    const li = document.createElement("li");
+    li.style.padding = "6px 0";
+    li.style.fontSize = "0.85rem";
+    li.style.borderBottom = "1px solid var(--color-border)";
+    li.innerHTML = `<strong>${esc(sender)}:</strong> <span style="color:var(--color-muted)">${esc(msg.substring(0, 30))}${msg.length > 30 ? '...' : ''}</span>`;
+    pinnedList.appendChild(li);
+  });
+}
+
+async function loadHistory() {
+  try {
+    const res = await fetch(`${API}/collaboration/chat/${projectId}`, {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    if (!res.ok) throw new Error("fetch failed");
+    const msgs = await res.json();
+    messagesEl.innerHTML = "";
+    if (!msgs.length) {
+      messagesEl.innerHTML = `<div class="cp-empty">No messages yet. Start the conversation!</div>`;
+      return;
+    }
+    msgs.forEach(addBubble);
+  } catch (e) {
+    messagesEl.innerHTML = `<div class="cp-empty">Could not load messages.</div>`;
+  }
+}
+
+async function checkRole() {
+  try {
+    const res = await fetch(`${API}/collab-api/projects/${projectId}/collaborators`, {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    if (res.ok) {
+      const collabs = await res.json();
+      const me = collabs.find(c => String(c.id) === String(currentUser.user_id));
+      if (me && me.role === "READ") {
+        input.disabled = true;
+        input.placeholder = "You have READ-only access. Messaging is disabled.";
+        document.getElementById("cp-send-btn").disabled = true;
+        document.getElementById("cp-send-btn").style.opacity = "0.5";
+      }
+    }
+  } catch (e) {}
+}
+
+async function togglePin(msgId) {
+  try {
+    await fetch(`${API}/collaboration/chat/${msgId}/pin`, {
+      method: "PATCH",
+      headers: { "Authorization": "Bearer " + token }
+    });
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function deleteChat(msgId) {
+  showCustomConfirm("Delete Message?", "Are you sure you want to delete this message? This cannot be undone.", async () => {
+
+    const msgDiv = document.getElementById("chat-msg-" + msgId);
+    if (msgDiv) msgDiv.remove();
+    updatePinnedChatsList();
+
+    try {
+      const res = await fetch(`${API}/collaboration/chat/${msgId}`, {
+        method: "DELETE",
+        headers: { "Authorization": "Bearer " + token }
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        showCustomAlert("Error", "Failed to delete message: " + (err.detail || "Unknown error"));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  });
+}
+
+let socket = null;
+let typingTimer = null;
+
+function initSocket() {
+  if (typeof io === "undefined") return;
+  socket = io(API, { transports: ["websocket", "polling"] });
+
+  socket.on("connect", () => {
+    socket.emit("join_project", {
+      project_id: projectId,
+      username:   currentUser.username,
+      user_id:    currentUser.user_id
+    });
+  });
+
+  socket.on("chat_message", m => {
+    if (String(m.project_id) === String(projectId)) addBubble(m);
+  });
+
+  socket.on("message_deleted", d => {
+    if (String(d.project_id) !== String(projectId)) return;
+    const msgDiv = document.getElementById("chat-msg-" + d.id);
+    if (msgDiv) msgDiv.remove();
+    updatePinnedChatsList();
+  });
+
+  socket.on("typing", d => {
+    if (String(d.project_id) !== String(projectId)) return;
+    typingEl.textContent = d.typing ? `${esc(d.username)} is typing…` : "";
+  });
+
+  function updateOnlineUsers(onlineList) {
+    const listEl = document.getElementById("online-users-list");
+    const countEl = document.getElementById("online-users-count");
+    if (!listEl || !countEl) return;
+    
+    countEl.textContent = onlineList.length;
+    listEl.innerHTML = "";
+    
+    if (onlineList.length === 0) {
+      listEl.innerHTML = `<li style="color: var(--color-muted); font-size: 0.85rem;">No users online</li>`;
+      return;
+    }
+    
+    onlineList.forEach(uname => {
+      const li = document.createElement("li");
+      li.style.padding = "6px 0";
+      li.style.fontSize = "0.9rem";
+      li.innerHTML = `<span style="color:#38a169; margin-right:6px;">&#9679;</span> ${esc(uname)}`;
+      listEl.appendChild(li);
+    });
+  }
+
+  socket.on("user_joined", d => {
+    if (String(d.project_id) === String(projectId)) {
+      addSystemMsg(`${d.username} joined`);
+      if (d.online) updateOnlineUsers(d.online);
+    }
+  });
+
+  socket.on("user_left", d => {
+    if (String(d.project_id) === String(projectId)) {
+      addSystemMsg(`${d.username} left`);
+      if (d.online) updateOnlineUsers(d.online);
+    }
+  });
+
+  socket.on("system_message", d => {
+    addSystemMsg(d.message);
+  });
+
+  socket.on("message_pinned", d => {
+    const b = document.getElementById("chat-msg-" + d.id);
+    if (b) {
+      const dropdownItem = b.querySelector(".cp-dropdown-item");
+      if (d.is_pinned) {
+        b.classList.add("pinned");
+        if (dropdownItem) dropdownItem.textContent = "Unpin this conversation";
+      } else {
+        b.classList.remove("pinned");
+        if (dropdownItem) dropdownItem.textContent = "Pin this conversation";
+      }
+      updatePinnedChatsList();
+    }
+  });
+
+  socket.on("force_logout", d => {
+    showCustomAlert("Session Invalidated", d.message || "Your session has been invalidated.", () => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "/login";
+    });
+  });
+
+  socket.on("message_deleted", d => {
+    if (String(d.project_id) === String(projectId)) {
+      const b = document.getElementById("chat-msg-" + d.id);
+      if (b) {
+        b.remove();
+        updatePinnedChatsList();
+      }
+    }
+  });
+}
+
+form.addEventListener("submit", async e => {
+  e.preventDefault();
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = "";
+
+  if (socket) socket.emit("typing_stop", { project_id: projectId, username: currentUser.username });
+  clearTimeout(typingTimer);
+
+  try {
+    await fetch(`${API}/collaboration/chat`, {
+      method:  "POST",
+      headers: {
+        "Content-Type":  "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify({ project_id: projectId, message: msg })
+    });
+  } catch (_) {}
+});
+
+input.addEventListener("input", () => {
+  if (!socket) return;
+  socket.emit("typing_start", { project_id: projectId, username: currentUser.username });
+  clearTimeout(typingTimer);
+  typingTimer = setTimeout(() => {
+    socket.emit("typing_stop", { project_id: projectId, username: currentUser.username });
+  }, 2000);
+});
+
+checkRole();
+loadHistory();
+initSocket();
+</script>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — CodeReview</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<body class="app-body">
+
+  <header class="navbar">
+    <div class="navbar-left">
+      <div class="logo">
+        <span class="logo-icon">&#9670;</span>
+        <span class="logo-text">CodeReview — Admin</span>
+      </div>
+    </div>
+    <div class="navbar-right">
+      <button class="btn-ghost btn-sm" id="sort-toggle-btn" style="margin-right:10px;">Sort: DESC</button>
+      <div class="user-badge" id="admin-profile-btn" style="cursor: pointer;" title="Admin Profile">
+        <div class="user-avatar" style="background: #e53e3e;">A</div>
+        <span class="user-name">Admin</span>
+      </div>
+      <button class="btn-logout" id="logout-btn">Logout</button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-tab="overview">&#128202; Overview</a>
+        <a href="#" class="nav-item" data-tab="users">&#128101; Users</a>
+        <a href="#" class="nav-item" data-tab="projects">&#128193; Projects</a>
+        <a href="#" class="nav-item" data-tab="files">&#128196; Files</a>
+        <a href="#" class="nav-item" data-tab="reviews">&#128270; Reviews</a>
+        <a href="#" class="nav-item" data-tab="chats">&#128172; Chats</a>
+        <a href="#" class="nav-item" data-tab="activity">&#128336; Activity</a>
+        <a href="#" class="nav-item" data-tab="logins">&#128274; Login History</a>
+        <a href="#" class="nav-item" data-tab="logs">&#128221; Admin Logs</a>
+        <a href="#" class="nav-item" data-tab="profile">&#128100; Profile</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+
+      <section id="tab-overview" class="admin-section active">
+        <div class="section-header"><h2>Admin Overview</h2></div>
+        <div class="stats-grid" id="admin-stats-grid">
+          <div class="stat-card"><div class="stat-icon stat-blue">&#128101;</div><div class="stat-info"><span class="stat-label">Users</span><span class="stat-value" id="a-users">—</span></div></div>
+          <div class="stat-card"><div class="stat-icon stat-green">&#128193;</div><div class="stat-info"><span class="stat-label">Projects</span><span class="stat-value" id="a-projects">—</span></div></div>
+          <div class="stat-card"><div class="stat-icon stat-orange">&#128196;</div><div class="stat-info"><span class="stat-label">Files</span><span class="stat-value" id="a-files">—</span></div></div>
+          <div class="stat-card"><div class="stat-icon stat-purple">&#128270;</div><div class="stat-info"><span class="stat-label">Reviews</span><span class="stat-value" id="a-reviews">—</span></div></div>
+          <div class="stat-card"><div class="stat-icon stat-teal">&#128172;</div><div class="stat-info"><span class="stat-label">Chats</span><span class="stat-value" id="a-chats">—</span></div></div>
+          <div class="stat-card"><div class="stat-icon stat-red">&#128190;</div><div class="stat-info"><span class="stat-label">Commits</span><span class="stat-value" id="a-commits">—</span></div></div>
+        </div>
+      </section>
+
+      <section id="tab-users" class="admin-section">
+        <div class="section-header"><h2>Users</h2></div>
+        <div class="card">
+          <table class="admin-table" id="users-table">
+            <thead><tr><th>#</th><th>Username</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+            <tbody id="users-tbody"><tr><td colspan="7" class="empty-state">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="tab-projects" class="admin-section">
+        <div class="section-header"><h2>All Projects</h2></div>
+        <div class="card">
+          <table class="admin-table">
+            <thead><tr><th>ID</th><th>Name</th><th>Description</th><th>Owner ID</th><th>Created</th><th>Actions</th></tr></thead>
+            <tbody id="projects-tbody"><tr><td colspan="6" class="empty-state">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="tab-files" class="admin-section">
+        <div class="section-header"><h2>Uploaded Files</h2></div>
+        <div class="card">
+          <table class="admin-table">
+            <thead><tr><th>ID</th><th>Filename</th><th>Type</th><th>Project ID</th><th>Uploaded</th><th>Actions</th></tr></thead>
+            <tbody id="files-tbody"><tr><td colspan="6" class="empty-state">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="tab-reviews" class="admin-section">
+        <div class="section-header"><h2>Review History</h2></div>
+        <div class="card">
+          <table class="admin-table">
+            <thead><tr><th>ID</th><th>Project</th><th>File</th><th>Issues (preview)</th><th>Date</th></tr></thead>
+            <tbody id="reviews-tbody"><tr><td colspan="6" class="empty-state">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="tab-chats" class="admin-section">
+        <div class="section-header"><h2>Chat History</h2></div>
+        <div class="card">
+          <table class="admin-table">
+            <thead><tr><th>ID</th><th>Project</th><th>User</th><th>Message</th><th>Time</th></tr></thead>
+            <tbody id="chats-tbody"><tr><td colspan="6" class="empty-state">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="tab-activity" class="admin-section">
+        <div class="section-header"><h2>User Activity</h2></div>
+        <div class="card">
+          <table class="admin-table">
+            <thead><tr><th>ID</th><th>Action</th><th>Project</th><th>User</th><th>Time</th></tr></thead>
+            <tbody id="activity-tbody"><tr><td colspan="6" class="empty-state">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="tab-logins" class="admin-section">
+        <div class="section-header"><h2>Login History</h2></div>
+        <div class="card">
+          <table class="admin-table">
+            <thead><tr><th>ID</th><th>User ID</th><th>IP</th><th>User Agent</th><th>Time</th></tr></thead>
+            <tbody id="logins-tbody"><tr><td colspan="6" class="empty-state">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="tab-logs" class="admin-section">
+        <div class="section-header"><h2>Admin Action Logs</h2></div>
+        <div class="card">
+          <table class="admin-table">
+            <thead><tr><th>ID</th><th>Action</th><th>Target</th><th>Detail</th><th>Time</th></tr></thead>
+            <tbody id="logs-tbody"><tr><td colspan="6" class="empty-state">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="tab-profile" class="admin-section">
+        <div class="section-header">
+          <h2>Admin Profile</h2>
+          <p>Manage your account settings</p>
+        </div>
+        <div class="card" style="max-width: 1000px;">
+          <h3>Profile Details</h3>
+          <form id="profile-form">
+            <div class="form-group">
+              <label for="prof-username">Username</label>
+              <input type="text" id="prof-username" required />
+            </div>
+            <div class="form-group">
+              <label for="prof-email">Email</label>
+              <input type="email" id="prof-email" required />
+            </div>
+            <div class="form-alert" id="prof-alert" style="display:none; margin-bottom: 10px;"></div>
+            <button type="submit" class="btn-primary btn-sm">Update Profile</button>
+          </form>
+        </div>
+        <div class="card" style="max-width: 1000px; margin-top: 20px;">
+          <h3>Change Password</h3>
+          <form id="password-form">
+            <div class="form-group">
+              <label for="prof-old-pwd">Current Password</label>
+              <input type="password" id="prof-old-pwd" required />
+            </div>
+            <div class="form-group">
+              <label for="prof-new-pwd">New Password</label>
+              <input type="password" id="prof-new-pwd" required />
+            </div>
+            <div class="form-alert" id="pwd-alert" style="display:none; margin-bottom: 10px;"></div>
+            <button type="submit" class="btn-primary btn-sm">Change Password</button>
+          </form>
+        </div>
+        <div class="card" style="max-width: 1000px; margin-top: 20px; border: 1px solid var(--color-danger);">
+          <h3 style="color: var(--color-danger);">Delete Account</h3>
+          <p style="font-size: 0.85rem; color: var(--color-muted);">Once you delete your account, there is no going back. Please be certain.</p>
+          <button id="prof-delete-btn" class="btn-danger btn-sm">Delete Account</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>
+

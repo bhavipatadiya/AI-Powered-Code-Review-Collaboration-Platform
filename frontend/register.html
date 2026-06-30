@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register — CodeReview</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="auth-body">
+
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="logo">
+        <span class="logo-icon">&#9670;</span>
+        <span class="logo-text">CodeReview</span>
+      </div>
+      <h1>Create an account</h1>
+      <p>Start reviewing code with your team</p>
+    </div>
+
+    <form id="register-form" novalidate>
+
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          placeholder="e.g. john_doe"
+          autocomplete="username"
+          required
+        />
+        <span class="field-error" id="username-error"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="you@example.com"
+          autocomplete="email"
+          required
+        />
+        <span class="field-error" id="email-error"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="At least 6 characters"
+          autocomplete="new-password"
+          required
+        />
+        <span class="field-error" id="password-error"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="role">Role</label>
+        <select id="role" name="role" required>
+          <option value="" disabled selected>Select a role</option>
+          <option value="admin">Admin</option>
+          <option value="user">User
+          </option>
+        </select>
+        <span class="field-error" id="role-error"></span>
+      </div>
+
+      <div class="form-alert" id="form-alert" style="display:none;"></div>
+
+      <button type="submit" class="btn-primary" id="submit-btn">
+        <span id="btn-text">Create account</span>
+        <span id="btn-spinner" class="spinner" style="display:none;"></span>
+      </button>
+
+    </form>
+
+    <div class="auth-footer">
+      Already have an account? <a href="/login">Sign in</a>
+    </div>
+  </div>
+
+  <script src="/js/register.js"></script>
+</body>
+</html>
