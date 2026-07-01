@@ -4,8 +4,6 @@ from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import os
 
-
-# Load .env file (local development)
 env_path = os.path.join(
     os.path.dirname(os.path.dirname(__file__)),
     ".env"
@@ -13,19 +11,13 @@ env_path = os.path.join(
 
 load_dotenv(env_path)
 
-
-# Use Render DATABASE_URL if available
-# Otherwise fallback to SQLite database
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
     "sqlite:///./database.db"
 )
 
-
 print("DATABASE URL:", DATABASE_URL)
 
-
-# SQLite needs special configuration
 if DATABASE_URL.startswith("sqlite"):
     engine = create_engine(
         DATABASE_URL,
@@ -35,7 +27,6 @@ if DATABASE_URL.startswith("sqlite"):
     )
 
 else:
-    # PostgreSQL / other databases
     engine = create_engine(
         DATABASE_URL
     )
