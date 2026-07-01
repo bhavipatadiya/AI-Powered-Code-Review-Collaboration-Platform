@@ -21,7 +21,10 @@ from ..models import ChatbotMessage, ProjectFile
 
 router = APIRouter()
 
-OLLAMA_BASE_URL  = "http://localhost:11434"
+OLLAMA_BASE_URL = os.getenv(
+    "OLLAMA_URL",
+    "http://localhost:11434"
+)
 OLLAMA_GEN_URL   = f"{OLLAMA_BASE_URL}/api/generate"
 OLLAMA_TAGS_URL  = f"{OLLAMA_BASE_URL}/api/tags"
 OLLAMA_MODEL     = "qwen2.5-coder"
