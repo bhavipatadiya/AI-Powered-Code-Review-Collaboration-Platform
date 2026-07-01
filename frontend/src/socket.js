@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
 
 const socket = io(
-  "http://localhost:8000"
+  "https://ai-powered-code-review-collaboration-yzum.onrender.com"
 );
 
-export default socket;
+export default socket;s

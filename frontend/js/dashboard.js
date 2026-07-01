@@ -1,4 +1,4 @@
-const API   = "http://127.0.0.1:8000";
+const API   = "https://ai-powered-code-review-collaboration-yzum.onrender.com";
 const token = localStorage.getItem("token");
 if (!token) { 
   window.location.href = "/login"; 
